@@ -12,9 +12,8 @@ class _TopNavigationBar extends State<TopNavigationBar> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: NavigationBar(
-        height: 60,
+    return Container(
+      child: NavigationBar(
         backgroundColor: Colors.white,
         onDestinationSelected: (int index) {
           setState(() {
