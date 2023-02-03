@@ -14,6 +14,7 @@ class _TopNavigationBar extends State<TopNavigationBar> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: NavigationBar(
+        height: 60,
         backgroundColor: Colors.white,
         onDestinationSelected: (int index) {
           setState(() {
@@ -23,10 +24,6 @@ class _TopNavigationBar extends State<TopNavigationBar> {
         selectedIndex: currentPageIndex,
         destinations: const <Widget>[
           NavigationDestination(
-            icon: Icon(Icons.question_mark_rounded),
-            label: 'О сайте',
-          ),
-          NavigationDestination(
             icon: Icon(Icons.route_rounded),
             label: 'Построить маршрут',
           ),
@@ -34,6 +31,10 @@ class _TopNavigationBar extends State<TopNavigationBar> {
             selectedIcon: Icon(Icons.bookmark),
             icon: Icon(Icons.bookmark_border),
             label: 'Ваши маршруты',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.question_mark_rounded),
+            label: 'О сайте',
           ),
         ],
       ),
