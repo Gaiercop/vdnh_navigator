@@ -30,6 +30,24 @@ def sights():
                     string_result += (str(el) + " ")
             
             return string_result
+
+
+@app.route("/get_sight_name", methods=['POST'])
+def get_sight_name():
+    con = pymysql.connect(host = 'localhost', user = 'root',
+    password = '123456789', database = 'vdnh_navigator')
+    
+    latitude = str(request.json['latitude'])
+    longitude = str(request.json['longitude'])
+    
+    with con:
+        cur = con.cursor()
+        cur.execute(f'SELECT name FROM sights WHERE latitude = {latitude} AND longitude = {longitude}')
+        
+        result = cur.fetchone()
+        cur.close()
+        
+        return Response(result[0], 200)
         
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()

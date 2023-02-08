@@ -127,7 +127,7 @@ class _OSMMapState extends State<OSMMap> {
             markerRotateAlignment:
                 PopupMarkerLayerOptions.rotationAlignmentFor(AnchorAlign.top),
             popupBuilder: (BuildContext context, Marker marker) =>
-                ExamplePopup(marker),
+                Popup(marker),
           ),
         ),
       ],

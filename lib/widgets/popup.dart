@@ -1,22 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:latlong2/latlong.dart';
 
-class ExamplePopup extends StatefulWidget {
+class Popup extends StatefulWidget {
   final Marker marker;
 
-  const ExamplePopup(this.marker, {Key? key}) : super(key: key);
+  const Popup(this.marker, {Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _ExamplePopupState();
+  State<StatefulWidget> createState() => _PopupState();
 }
 
-class _ExamplePopupState extends State<ExamplePopup> {
+class _PopupState extends State<Popup> {
   final List<IconData> _icons = [
     Icons.star_border,
     Icons.star_half,
     Icons.star
   ];
   int _currentIcon = 0;
+  Future<String>? _name;
+
+  @override
+  initState() {
+    super.initState();
+
+    _name = _getName(LatLng(
+      widget.marker.point.latitude,
+      widget.marker.point.longitude,
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,18 +63,30 @@ class _ExamplePopupState extends State<ExamplePopup> {
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            const Text(
-              'Popup for a marker!',
-              overflow: TextOverflow.fade,
-              softWrap: false,
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 14.0,
-              ),
-            ),
+            FutureBuilder<String>(
+                future: _name,
+                builder:
+                    (BuildContext context, AsyncSnapshot<String> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator(
+                        color: Colors.black54);
+                  } else if (snapshot.connectionState == ConnectionState.done) {
+                    return Text(
+                      snapshot.data as String,
+                      overflow: TextOverflow.fade,
+                      softWrap: false,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14.0,
+                      ),
+                    );
+                  } else {
+                    return Text('State: ${snapshot.connectionState}');
+                  }
+                }),
             const Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
             Text(
-              'Position: ${widget.marker.point.latitude}, ${widget.marker.point.longitude}',
+              'Координаты: ${widget.marker.point.latitude}, ${widget.marker.point.longitude}',
               style: const TextStyle(fontSize: 12.0),
             ),
             Text(
@@ -71,5 +97,19 @@ class _ExamplePopupState extends State<ExamplePopup> {
         ),
       ),
     );
+  }
+
+  Future<String>? _getName(LatLng coords) async {
+    var data = {"latitude": coords.latitude, "longitude": coords.longitude};
+
+    final result = await http.post(
+      Uri.parse("http://127.0.0.1:5000/get_sight_name"),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+    );
+
+    return result.body;
   }
 }
