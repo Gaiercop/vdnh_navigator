@@ -113,10 +113,6 @@ class _PopupState extends State<Popup> {
               'Координаты: ${widget.marker.point.latitude}, ${widget.marker.point.longitude}',
               style: const TextStyle(fontSize: 12.0),
             ),
-            Text(
-              'Marker size: ${widget.marker.width}, ${widget.marker.height}',
-              style: const TextStyle(fontSize: 12.0),
-            ),
           ],
         ),
       ),

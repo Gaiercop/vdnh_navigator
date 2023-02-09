@@ -20,6 +20,7 @@ class _OSMMapState extends State<OSMMap> {
 
   final List<Marker> _markers = List.empty(growable: true);
   final PopupController _popupLayerController = PopupController();
+  bool _isRoutingVisible = false;
 
   void addPOI(LatLng point) => currentRoute.add(point);
 
@@ -75,6 +76,44 @@ class _OSMMapState extends State<OSMMap> {
         maxZoom: 18,
       ),
       nonRotatedChildren: [
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Visibility(
+            visible: _isRoutingVisible,
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.only(top: 5),
+                  child: TextButton.icon(
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: const Color.fromRGBO(15, 86, 178, 1.0),
+                      padding: const EdgeInsets.all(20.0),
+                      textStyle: const TextStyle(fontSize: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        side: const BorderSide(
+                          color: Color.fromRGBO(138, 185, 246, 1.0),
+                          width: 3.0,
+                        ),
+                      ),
+                    ),
+                    onPressed: () {},
+                    icon: const Icon(
+                      color: Color.fromRGBO(140, 229, 144, 1.0),
+                      Icons.check,
+                      size: 30.0,
+                    ),
+                    label: const Text(
+                      'Готово',
+                      style: TextStyle(fontWeight: FontWeight.w400),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
         Align(
           alignment: Alignment.topRight,
           child: Container(
@@ -133,6 +172,11 @@ class _OSMMapState extends State<OSMMap> {
             popupBuilder: (BuildContext context, Marker marker) => Popup(
               marker,
               onNewPOI: (LatLng point) {
+                if (currentRoute.isEmpty && !currentRoute.contains(point)) {
+                  setState(() {
+                    _isRoutingVisible = true;
+                  });
+                }
                 if (!currentRoute.contains(point)) addPOI(point);
               },
             ),
