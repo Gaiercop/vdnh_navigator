@@ -3,23 +3,23 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:latlong2/latlong.dart';
+import 'new_route.dart';
+import 'osm_map.dart';
+
+typedef AddPOICallback = void Function(LatLng point);
 
 class Popup extends StatefulWidget {
   final Marker marker;
+  final AddPOICallback onNewPOI;
 
-  const Popup(this.marker, {Key? key}) : super(key: key);
+  const Popup(this.marker, {Key? key, required this.onNewPOI})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _PopupState();
 }
 
 class _PopupState extends State<Popup> {
-  final List<IconData> _icons = [
-    Icons.star_border,
-    Icons.star_half,
-    Icons.star
-  ];
-  int _currentIcon = 0;
   Future<String>? _name;
 
   @override
@@ -32,19 +32,43 @@ class _PopupState extends State<Popup> {
     ));
   }
 
+  void addPOI(bool isCreated) {
+    if (isCreated == true) {
+      widget.onNewPOI(
+        LatLng(
+          widget.marker.point.latitude,
+          widget.marker.point.longitude,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
       child: InkWell(
-        onTap: () => setState(() {
-          _currentIcon = (_currentIcon + 1) % _icons.length;
-        }),
+        onTap: () {
+          if (currentRoute.isEmpty) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return CreateRoute(
+                  onRouteCreated: (bool isCreated) {
+                    addPOI(isCreated);
+                  },
+                );
+              },
+            );
+          } else {
+            addPOI(true);
+          }
+        },
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(left: 20, right: 10),
-              child: Icon(_icons[_currentIcon]),
+            const Padding(
+              padding: EdgeInsets.only(left: 20, right: 10),
+              child: Icon(Icons.add_location),
             ),
             _cardDescription(context),
           ],

@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'popup.dart';
 
+List<LatLng> currentRoute = List.empty(growable: true);
+
 class OSMMap extends StatefulWidget {
   const OSMMap({super.key});
 
@@ -18,6 +20,8 @@ class _OSMMapState extends State<OSMMap> {
 
   final List<Marker> _markers = List.empty(growable: true);
   final PopupController _popupLayerController = PopupController();
+
+  void addPOI(LatLng point) => currentRoute.add(point);
 
   Future<List<LatLng>> getSightsCoords() async {
     final result = await http.post(
@@ -126,8 +130,12 @@ class _OSMMapState extends State<OSMMap> {
             markers: _markers,
             markerRotateAlignment:
                 PopupMarkerLayerOptions.rotationAlignmentFor(AnchorAlign.top),
-            popupBuilder: (BuildContext context, Marker marker) =>
-                Popup(marker),
+            popupBuilder: (BuildContext context, Marker marker) => Popup(
+              marker,
+              onNewPOI: (LatLng point) {
+                if (!currentRoute.contains(point)) addPOI(point);
+              },
+            ),
           ),
         ),
       ],
