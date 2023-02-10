@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'popup.dart';
+import '../routing/routing_client_dart.dart';
 
 List<LatLng> currentRoute = List.empty(growable: true);
 
@@ -20,7 +21,9 @@ class _OSMMapState extends State<OSMMap> {
 
   final List<Marker> _markers = List.empty(growable: true);
   final PopupController _popupLayerController = PopupController();
+
   bool _isRoutingVisible = false;
+  List<LatLng> _polylinePoints = List.empty(growable: true);
 
   void addPOI(LatLng point) => currentRoute.add(point);
 
@@ -163,6 +166,16 @@ class _OSMMapState extends State<OSMMap> {
           userAgentPackageName: 'com.vdnh_navigator.app',
           subdomains: const ['a', 'b', 'c'],
         ),
+        PolylineLayer(
+          polylineCulling: false,
+          polylines: [
+            Polyline(
+              points: _polylinePoints,
+              color: Colors.blue,
+              strokeWidth: 5.0,
+            ),
+          ],
+        ),
         PopupMarkerLayerWidget(
           options: PopupMarkerLayerOptions(
             popupController: _popupLayerController,
@@ -171,13 +184,44 @@ class _OSMMapState extends State<OSMMap> {
                 PopupMarkerLayerOptions.rotationAlignmentFor(AnchorAlign.top),
             popupBuilder: (BuildContext context, Marker marker) => Popup(
               marker,
-              onNewPOI: (LatLng point) {
+              onNewPOI: (LatLng point) async {
                 if (currentRoute.isEmpty && !currentRoute.contains(point)) {
                   setState(() {
                     _isRoutingVisible = true;
                   });
                 }
-                if (!currentRoute.contains(point)) addPOI(point);
+                if (!currentRoute.contains(point)) {
+                  addPOI(point);
+
+                  if (currentRoute.length >= 2) {
+                    List<LngLat> currentLngLat = List.empty(growable: true);
+
+                    for (var element in currentRoute) {
+                      currentLngLat.add(
+                        LngLat(lng: element.longitude, lat: element.latitude),
+                      );
+                    }
+
+                    final manager = OSRMManager();
+                    final road = await manager.getRoad(
+                      waypoints: currentLngLat,
+                      languageCode: "en",
+                      roadType: RoadType.foot,
+                      steps: true,
+                    );
+
+                    List<LngLat> polylineLngLat = road.polyline as List<LngLat>;
+                    List<LatLng> polylineLatLng = List.empty(growable: true);
+
+                    for (var element in polylineLngLat) {
+                      polylineLatLng.add(LatLng(element.lat, element.lng));
+                    }
+
+                    setState(() {
+                      _polylinePoints = polylineLatLng;
+                    });
+                  }
+                }
               },
             ),
           ),
