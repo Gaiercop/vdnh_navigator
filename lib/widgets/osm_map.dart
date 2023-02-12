@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
@@ -26,6 +27,20 @@ class _OSMMapState extends State<OSMMap> {
   List<LatLng> _polylinePoints = List.empty(growable: true);
 
   void addPOI(LatLng point) => currentRoute.add(point);
+
+  String routeToString() {
+    String str = "";
+
+    for (int i = 0; i < _polylinePoints.length - 1; i++) {
+      str +=
+          "${_polylinePoints[i].latitude.toString()},${_polylinePoints[i].longitude.toString()} ";
+    }
+
+    str +=
+        "${_polylinePoints[_polylinePoints.length - 1].latitude.toString()},${_polylinePoints[_polylinePoints.length - 1].longitude.toString()}";
+
+    return str;
+  }
 
   Future<List<LatLng>> getSightsCoords() async {
     final result = await http.post(
@@ -101,7 +116,22 @@ class _OSMMapState extends State<OSMMap> {
                         ),
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: () async {
+                      var data = {"route": routeToString()};
+
+                      await http.post(
+                        Uri.parse("http://127.0.0.1:5000/add_route"),
+                        headers: <String, String>{
+                          'Content-Type': 'application/json; charset=UTF-8',
+                        },
+                        body: jsonEncode(data),
+                      );
+
+                      setState(() {
+                        _isRoutingVisible = false;
+                        _polylinePoints = List.empty(growable: true);
+                      });
+                    },
                     icon: const Icon(
                       color: Color.fromRGBO(140, 229, 144, 1.0),
                       Icons.check,
@@ -207,7 +237,6 @@ class _OSMMapState extends State<OSMMap> {
                       waypoints: currentLngLat,
                       languageCode: "en",
                       roadType: RoadType.foot,
-                      steps: true,
                     );
 
                     List<LngLat> polylineLngLat = road.polyline as List<LngLat>;

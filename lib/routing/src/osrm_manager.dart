@@ -153,7 +153,7 @@ extension OSRMPrivateFunct on OSRMManager {
     RoadType roadType = RoadType.car,
     bool steps = true,
     Overview overview = Overview.full,
-    Geometries geometry= Geometries.polyline,
+    Geometries geometry = Geometries.polyline,
   }) {
     String url =
         "$server/routed-${roadType.value}/${profile.name}/v1/diving/$waypoints";

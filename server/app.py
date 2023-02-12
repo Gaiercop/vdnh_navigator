@@ -48,6 +48,24 @@ def get_sight_name():
         cur.close()
         
         return Response(result[0], 200)
+    
+@app.route("/add_route", methods=['POST'])
+def add_route():
+    con = pymysql.connect(host = 'localhost', user = 'root',
+    password = '123456789', database = 'vdnh_navigator')
+    
+    route = str(request.json['route'])
+    
+    with con:
+        cur = con.cursor()
+        cur.execute(f'INSERT INTO routes(points) VALUES ("{route}")')
+        
+        cur.close()
+        con.commit()
+        
+        return Response("200", 200)
+
+
         
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
