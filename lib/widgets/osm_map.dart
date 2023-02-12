@@ -26,6 +26,9 @@ class _OSMMapState extends State<OSMMap> {
   bool _isRoutingVisible = false;
   List<LatLng> _polylinePoints = List.empty(growable: true);
 
+  double _duration = 0.0;
+  double _distance = 0.0;
+
   void addPOI(LatLng point) => currentRoute.add(point);
 
   String routeToString() {
@@ -117,7 +120,11 @@ class _OSMMapState extends State<OSMMap> {
                       ),
                     ),
                     onPressed: () async {
-                      var data = {"route": routeToString()};
+                      var data = {
+                        "route": routeToString(),
+                        "duration": _duration,
+                        "distance": _distance
+                      };
 
                       await http.post(
                         Uri.parse("http://127.0.0.1:5000/add_route"),
@@ -126,6 +133,8 @@ class _OSMMapState extends State<OSMMap> {
                         },
                         body: jsonEncode(data),
                       );
+
+                      currentRoute = List.empty(growable: true);
 
                       setState(() {
                         _isRoutingVisible = false;
@@ -238,6 +247,9 @@ class _OSMMapState extends State<OSMMap> {
                       languageCode: "en",
                       roadType: RoadType.foot,
                     );
+
+                    _duration = road.duration;
+                    _distance = road.distance;
 
                     List<LngLat> polylineLngLat = road.polyline as List<LngLat>;
                     List<LatLng> polylineLatLng = List.empty(growable: true);

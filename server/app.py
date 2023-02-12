@@ -55,10 +55,12 @@ def add_route():
     password = '123456789', database = 'vdnh_navigator')
     
     route = str(request.json['route'])
+    duration = float(request.json['duration'])
+    distance = float(request.json['distance'])
     
     with con:
         cur = con.cursor()
-        cur.execute(f'INSERT INTO routes(points) VALUES ("{route}")')
+        cur.execute(f'INSERT INTO routes(points, time, distance) VALUES ("{route}", {duration}, {distance})')
         
         cur.close()
         con.commit()
