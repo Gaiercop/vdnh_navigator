@@ -1,4 +1,4 @@
-from flask import Flask, Response
+from flask import Flask, Response, json
 from flask import request
 
 import pymysql
@@ -66,6 +66,19 @@ def add_route():
         con.commit()
         
         return Response("200", 200)
+    
+@app.route("/get_routes", methods=['POST'])
+def get_routes():
+    con = pymysql.connect(host = 'localhost', user = 'root',
+    password = '123456789', database = 'vdnh_navigator')
+    
+    with con:
+        cur = con.cursor()
+        cur.execute('SELECT * FROM routes')
+        
+        data = cur.fetchall()
+        
+        return Response(json.dumps(data), 200)
 
 
         
