@@ -29,8 +29,6 @@ class _OSMMapState extends State<OSMMap> {
   double _duration = 0.0;
   double _distance = 0.0;
 
-  void addPOI(LatLng point) => currentRoute.add(point);
-
   String routeToString() {
     String str = "";
 
@@ -229,8 +227,9 @@ class _OSMMapState extends State<OSMMap> {
                     _isRoutingVisible = true;
                   });
                 }
+
                 if (!currentRoute.contains(point)) {
-                  addPOI(point);
+                  currentRoute.add(point);
 
                   if (currentRoute.length >= 2) {
                     List<LngLat> currentLngLat = List.empty(growable: true);
@@ -260,6 +259,43 @@ class _OSMMapState extends State<OSMMap> {
 
                     setState(() {
                       _polylinePoints = polylineLatLng;
+                    });
+                  }
+                } else if (currentRoute.contains(point)) {
+                  currentRoute.remove(point);
+
+                  if (currentRoute.length >= 2) {
+                    List<LngLat> currentLngLat = List.empty(growable: true);
+
+                    for (var element in currentRoute) {
+                      currentLngLat.add(
+                        LngLat(lng: element.longitude, lat: element.latitude),
+                      );
+                    }
+
+                    final manager = OSRMManager();
+                    final road = await manager.getRoad(
+                      waypoints: currentLngLat,
+                      languageCode: "en",
+                      roadType: RoadType.foot,
+                    );
+
+                    _duration = road.duration;
+                    _distance = road.distance;
+
+                    List<LngLat> polylineLngLat = road.polyline as List<LngLat>;
+                    List<LatLng> polylineLatLng = List.empty(growable: true);
+
+                    for (var element in polylineLngLat) {
+                      polylineLatLng.add(LatLng(element.lat, element.lng));
+                    }
+
+                    setState(() {
+                      _polylinePoints = polylineLatLng;
+                    });
+                  } else {
+                    setState(() {
+                      _polylinePoints = List.empty(growable: true);
                     });
                   }
                 }

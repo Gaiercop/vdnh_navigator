@@ -21,6 +21,8 @@ class Popup extends StatefulWidget {
 
 class _PopupState extends State<Popup> {
   Future<String>? _name;
+  int idx = 0;
+  List<Icon> lst = [Icon(Icons.add_location), Icon(Icons.remove)];
 
   @override
   initState() {
@@ -30,6 +32,13 @@ class _PopupState extends State<Popup> {
       widget.marker.point.latitude,
       widget.marker.point.longitude,
     ));
+
+    if (currentRoute.contains(LatLng(
+      widget.marker.point.latitude,
+      widget.marker.point.longitude,
+    ))) {
+      idx = 1;
+    }
   }
 
   void addPOI(bool isCreated) {
@@ -66,9 +75,9 @@ class _PopupState extends State<Popup> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(left: 20, right: 10),
-              child: Icon(Icons.add_location),
+              child: lst[idx],
             ),
             _cardDescription(context),
           ],
