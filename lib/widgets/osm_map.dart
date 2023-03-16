@@ -11,7 +11,9 @@ import '../routing/routing_client_dart.dart';
 List<LatLng> currentRoute = List.empty(growable: true);
 
 class OSMMap extends StatefulWidget {
-  const OSMMap({super.key});
+  List<LatLng> polylinePoints;
+
+  OSMMap({super.key, required this.polylinePoints});
 
   @override
   State<OSMMap> createState() => _OSMMapState();
@@ -24,7 +26,6 @@ class _OSMMapState extends State<OSMMap> {
   final PopupController _popupLayerController = PopupController();
 
   bool _isRoutingVisible = false;
-  List<LatLng> _polylinePoints = List.empty(growable: true);
 
   double _duration = 0.0;
   double _distance = 0.0;
@@ -32,13 +33,13 @@ class _OSMMapState extends State<OSMMap> {
   String routeToString() {
     String str = "";
 
-    for (int i = 0; i < _polylinePoints.length - 1; i++) {
+    for (int i = 0; i < widget.polylinePoints.length - 1; i++) {
       str +=
-          "${_polylinePoints[i].latitude.toString()},${_polylinePoints[i].longitude.toString()} ";
+          "${widget.polylinePoints[i].latitude.toString()},${widget.polylinePoints[i].longitude.toString()} ";
     }
 
     str +=
-        "${_polylinePoints[_polylinePoints.length - 1].latitude.toString()},${_polylinePoints[_polylinePoints.length - 1].longitude.toString()}";
+        "${widget.polylinePoints[widget.polylinePoints.length - 1].latitude.toString()},${widget.polylinePoints[widget.polylinePoints.length - 1].longitude.toString()}";
 
     return str;
   }
@@ -82,7 +83,9 @@ class _OSMMapState extends State<OSMMap> {
 
   @override
   Widget build(BuildContext context) {
+    currentRoute = widget.polylinePoints;
     generateMarkers();
+
     return FlutterMap(
       mapController: mapController,
       options: MapOptions(
@@ -136,7 +139,7 @@ class _OSMMapState extends State<OSMMap> {
 
                       setState(() {
                         _isRoutingVisible = false;
-                        _polylinePoints = List.empty(growable: true);
+                        widget.polylinePoints = List.empty(growable: true);
                       });
                     },
                     icon: const Icon(
@@ -207,7 +210,7 @@ class _OSMMapState extends State<OSMMap> {
           polylineCulling: false,
           polylines: [
             Polyline(
-              points: _polylinePoints,
+              points: widget.polylinePoints,
               color: Colors.blue,
               strokeWidth: 5.0,
             ),
@@ -258,7 +261,7 @@ class _OSMMapState extends State<OSMMap> {
                     }
 
                     setState(() {
-                      _polylinePoints = polylineLatLng;
+                      widget.polylinePoints = polylineLatLng;
                     });
                   }
                 } else if (currentRoute.contains(point)) {
@@ -291,11 +294,11 @@ class _OSMMapState extends State<OSMMap> {
                     }
 
                     setState(() {
-                      _polylinePoints = polylineLatLng;
+                      widget.polylinePoints = polylineLatLng;
                     });
                   } else {
                     setState(() {
-                      _polylinePoints = List.empty(growable: true);
+                      widget.polylinePoints = List.empty(growable: true);
                     });
                   }
                 }

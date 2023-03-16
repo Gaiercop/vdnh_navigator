@@ -79,6 +79,21 @@ def get_routes():
         data = cur.fetchall()
         
         return Response(json.dumps(data), 200)
+    
+@app.route("/get_points", methods=['POST'])
+def get_points():
+    con = pymysql.connect(host = 'localhost', user = 'root',
+    password = '123456789', database = 'vdnh_navigator')
+    
+    id = int(request.json['id'])
+    
+    with con:
+        cur = con.cursor()
+        cur.execute(f'SELECT points FROM routes WHERE id = {id}')
+        
+        data = cur.fetchone()
+        
+        return Response(data[0], 200)
 
 
         

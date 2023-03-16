@@ -52,7 +52,9 @@ class _MyAppState extends State<MyApp> {
             Expanded(
               flex: 11,
               child: <Widget>[
-                const OSMMap(),
+                OSMMap(
+                  polylinePoints: [],
+                ),
                 const RoutesList(),
                 Container(
                   color: Colors.white70,

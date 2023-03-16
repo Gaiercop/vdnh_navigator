@@ -22,7 +22,7 @@ class Popup extends StatefulWidget {
 class _PopupState extends State<Popup> {
   Future<String>? _name;
   int idx = 0;
-  List<Icon> lst = [Icon(Icons.add_location), Icon(Icons.remove)];
+  List<Icon> lst = [const Icon(Icons.add_location), const Icon(Icons.remove)];
 
   @override
   initState() {
@@ -76,7 +76,7 @@ class _PopupState extends State<Popup> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Padding(
-              padding: EdgeInsets.only(left: 20, right: 10),
+              padding: const EdgeInsets.only(left: 20, right: 10),
               child: lst[idx],
             ),
             _cardDescription(context),
